@@ -79,20 +79,29 @@ all_years_all_values = get_all_years_all_values(all_years_tables)
 
 
 
-
+# takes in a list of pages (each page represents a list of rows from table of movies for that year), goes to individual
+# pages for each movie and gets values. returns a list of dicts containing movie title, list of genres and release date
 def get_page_values(all_years_tables):
+    # create empty list container
     list_of_page_dicts = []
-    for n in range(1):
+    # iterates throguh each year
+    for n in range(len(all_years_tables)):
+        # iterates throguh each row/movie
         for row in all_years_tables[n]:
+            # create empty dict container
             page_values_dict={}
+            # find the link to each individual page
             link_ref = row.find('a', attrs={'class': 'a-link-normal'})['href']
+            # gets contents of that page and converts them to soup
             inner_page = requests.get(f'https://www.boxofficemojo.com{link_ref}')
             soup2 = BeautifulSoup(inner_page.content, 'html.parser')
+            # finds the row that contains movie title
             movie_row = soup2.find('div', 'a-fixed-left-grid-col a-col-right')
-            # Getting the movie title
+            # gets the movie title
             movie_name = movie_row.find('h1', attrs={'class': 'a-size-extra-large'}).get_text()
+            # adds a key-value pair to our dictionary containing movie title
             page_values_dict['title'] = movie_name
-            # Finding the genres
+            # Finds the genres
             data_table = soup2.find('div', {'class' : 'a-section a-spacing-none mojo-summary-values mojo-hidden-from-mobile'})
             for row in data_table:
                     text = row.text
@@ -104,9 +113,10 @@ def get_page_values(all_years_tables):
             stripped_gen = gen.replace('\n\n',',')
             genres_list = stripped_gen[6:].split(',')
             page_values_dict['genres'] = genres_list
-            # Get release date
+            # gets release date
             date_row = data_table.find_all('a', attrs={'class': 'a-link-normal'})
             date = date_row[1].get_text()
+            # attmepts to convert it to datetime (does not work well)
             clean_date = datetime.strptime(f'{date}', '%b %d, %Y')
             cleaner_date = clean_date.date()
             page_values_dict['release-date'] = cleaner_date
@@ -115,18 +125,18 @@ def get_page_values(all_years_tables):
 
 
 # GETTING THE GENRES AND Stuff
-page_data = get_page_values(all_years_tables)
+# page_data = get_page_values(all_years_tables)
 
 
-
-all_years_tables[1]
-
-all_years_tables[0]
-ink_ref = all_years_tables[0][0].find('a', attrs={'class': 'a-link-normal'})['href']
-
-ink_ref
-
-ink_ref.split('/')[2]
+#
+# all_years_tables[1]
+#
+# all_years_tables[0]
+# ink_ref = all_years_tables[0][0].find('a', attrs={'class': 'a-link-normal'})['href']
+#
+# ink_ref
+#
+# ink_ref.split('/')[2]
 
 
 
